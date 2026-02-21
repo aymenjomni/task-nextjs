@@ -1,0 +1,38 @@
+version: '3.8'
+
+services:
+  frontend:
+    build: ./frontend
+    container_name: frontend-1
+    restart: on-failure
+    networks:
+      - app_internal
+    environment:
+      - NODE_ENV=production
+
+  backend:
+    build: ./backend
+    container_name: backend-1
+    restart: on-failure
+    networks:
+      - app_internal
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+
+  nginx:
+    image: nginx:alpine
+    container_name: nginx-1
+    restart: always
+    ports:
+      - "8086:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - frontend
+      - backend
+    networks:
+      - app_internal
+
+networks:
+  app_internal:
+    driver: bridge
